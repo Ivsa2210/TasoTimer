@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Taso Time Timer</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      background: url('tasotimer.jfif') no-repeat center center fixed;
+      background-size: cover;
+      font-family: Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #startBtn {
+      font-size: 2em;
+      padding: 20px 40px;
+      cursor: pointer;
+      border: none;
+      border-radius: 10px;
+      background-color: #ff0000;
+      color: white;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+    }
+    #timerCanvas {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1;
+    }
+    #endVideo {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 3;
+    }
+  </style>
+</head>
+<body>
+  <button id="startBtn">Taso Time</button>
+  <canvas id="timerCanvas" width="400" height="400"></canvas>
+  <video id="endVideo" controls autoplay>
+    <source src="tasotimerfinal.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+
+  <script>
+    const startBtn = document.getElementById("startBtn");
+    const timerCanvas = document.getElementById("timerCanvas");
+    const ctx = timerCanvas.getContext("2d");
+    const endVideo = document.getElementById("endVideo");
+
+    let duration = 10 * 60; // 10 minutes in seconds
+    let remaining = duration;
+
+    function drawTimer() {
+      const percent = remaining / duration;
+      ctx.clearRect(0, 0, 400, 400);
+      ctx.beginPath();
+      ctx.arc(200, 200, 150, 0, Math.PI * 2);
+      ctx.strokeStyle = '#eee';
+      ctx.lineWidth = 20;
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(200, 200, 150, -Math.PI / 2, -Math.PI / 2 + percent * 2 * Math.PI);
+      ctx.strokeStyle = '#00ff00';
+      ctx.lineWidth = 20;
+      ctx.stroke();
+
+      ctx.fillStyle = "white";
+      ctx.font = "48px Arial";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      const min = Math.floor(remaining / 60);
+      const sec = remaining % 60;
+      const timeStr = `${min}:${sec.toString().padStart(2, '0')}`;
+      ctx.fillText(timeStr, 200, 200);
+    }
+
+    function updateTimer() {
+      drawTimer();
+      if (remaining > 0) {
+        remaining--;
+        setTimeout(updateTimer, 1000);
+      } else {
+        timerCanvas.style.display = "none";
+        endVideo.style.display = "block";
+        endVideo.play();
+      }
+    }
+
+    function enterFullScreen() {
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen();
+      } else if (document.documentElement.webkitRequestFullscreen) {
+        document.documentElement.webkitRequestFullscreen();
+      } else if (document.documentElement.msRequestFullscreen) {
+        document.documentElement.msRequestFullscreen();
+      }
+    }
+
+    startBtn.addEventListener("click", () => {
+      startBtn.style.display = "none";
+      timerCanvas.style.display = "block";
+      enterFullScreen();
+      updateTimer();
+    });
+  </script>
+</body>
+</html>
